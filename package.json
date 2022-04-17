@@ -1,47 +1,10 @@
 {
-	"name": "kugel-example-module",
-	"version": "1.0.0",
+	"name": "kugel-module",
+	"version": "2.0.0",
 	"description": "",
-	"main": "main.js",
+	"main": "kugel.js",
 	"author": "Pliffer",
 	"license": "SEE IN LICENSE.md",
-	"nodemonConfig": {
-		"ignore": [
-			"modules/*",
-			"app/assets/*"
-		]
-	},
-	"kugel": {
-		"modules": {
-			"core": [
-				"cl",
-				"better-express"
-			],
-			"startup": [
-				"pubility-front"
-			],
-			"start": []
-		},
-		"config": {
-			"gzip": true,
-			"morgan": true,
-			"session": false,
-			"socket": false,
-			"cors": true,
-			"assets": "assets",
-			"views": false,
-			"template_engine": false,
-			"body_parser": false,
-			"jwt": false,
-			"database": false,
-			"modules": true,
-			"state": "development",
-			"cache": "cache.manifest",
-			"compiledViewsDest": "assets",
-			"compileViews": "views/public",
-			"viewsOptions": {}
-		}
-	},
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
 		"chokidar": "^3.3.1",
@@ -71,7 +34,7 @@
 		"pug": "^3.0.2",
 		"request": "^2.88.0",
 		"sass": "^1.35.2",
-		"socket.io": "^2.3.0",
+		"socket.io": "^4.4.1",
 		"validate": "^5.1.0",
 		"walkdir": "^0.4.1",
 		"xlsx": "^0.17.0"

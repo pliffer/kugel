@@ -15,6 +15,12 @@ module.exports = {
 
     ignorableFiles: [path.sep + 'package-lock.json'],
 
+    isSassEnabled(){
+
+        return global.package.kugel.config.sass !== false;
+
+    },
+
     log(){
 
         // Melhorar, pois multiplos argumentos não estão pegando
@@ -44,7 +50,7 @@ module.exports = {
 
         }
 
-        global.modules.cl.add("compile views", function(){
+        global.modules.cl.add("apply views", function(){
 
             Util.kugel.compileViews();
 
@@ -88,6 +94,19 @@ module.exports = {
             modulesWatcher.on('change', filePath => {
 
                 module.exports.runChange(filePath);
+
+                // @dry
+                if(module.exports.isSassEnabled()){
+
+                    if(filePath.substr(-4) == '.css') return;
+
+                }
+
+                if(process.env.MODULES_AUTO_APPLY == 'true'){
+
+                    module.exports.applyModules();
+
+                }
 
             });
 
@@ -134,18 +153,21 @@ module.exports = {
 
         let extensionFile = path.extname(filePath);
 
-        await module.exports.reapplyFiles(filePath);
-
         switch(extensionFile){
             case '.pug':
 
-                global.modules.cl.execute('compile views');
+                global.modules.cl.execute('apply views');
 
             break;
             case '.sass':
             case '.scss':
 
-                module.exports.compile.sass(filePath);
+                // @todo Verificar se é bom deixar default false dessa maneira
+                if(module.exports.isSassEnabled){
+
+                    await module.exports.compile.sass(filePath);
+
+                }
 
             break;
             case '.css':
@@ -158,6 +180,8 @@ module.exports = {
                 // Arquivo não relevante foi alterado
             break;
         }
+
+        await module.exports.reapplyFiles(filePath);
 
     },
 
@@ -185,8 +209,14 @@ module.exports = {
 
                         walk.on('file', (asset) => {
 
+                            // @todo Modo dinamico de determinar quais formatos não devem ser copiados
+                            if(asset.substr(-5) == '.scss') return;
+                            if(asset.substr(-5) == '.sass') return;
+
                             let relativeAsset = asset.replace(modulePath, '');
                             let appAsset      = path.join(global.dir.app, relativeAsset);
+
+                            if(fs.existsSync(appAsset)) fs.unlinkSync(appAsset);
 
                             fs.copySync(asset, appAsset, {
                                 overwrite: true
@@ -209,7 +239,7 @@ module.exports = {
     applyFilesFirstRun: {},
 
     // Move os arquivos públicos da pasta do módulo para a pasta app
-    applyFiles(moduleName){
+    applyFiles(moduleName, __file){
 
         let firstTime = false;
 
@@ -839,6 +869,8 @@ module.exports = {
 
                     if(await Util.crc32(moduleFilePath) != await Util.crc32(moduleOriginFilePath)){
 
+                        if(fs.existsSync(moduleOriginFilePath)) fs.unlinkSync(moduleOriginFilePath);
+
                         fs.copy(moduleFilePath, moduleOriginFilePath, {
                             overwrite: true
                         }).then(() => {
@@ -847,7 +879,8 @@ module.exports = {
 
                         }).catch(e => {
 
-                            console.log(`@err Ocorreu um erro ${e.toString()}`);
+                            console.log(`@info Arquivo ${file.green} do modulo ${mod.green} ${"não aplicado".red}`);
+                            console.log(`@err ${e.toString()}`);
 
                         });
 
@@ -879,7 +912,7 @@ module.exports = {
 
             if(lockOnModule && lockOnModule != moduleName) continue; 
 
-            applyPromise.push(module.exports.applyFiles(moduleName));
+            applyPromise.push(module.exports.applyFiles(moduleName, file));
 
         }
 

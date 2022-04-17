@@ -343,7 +343,6 @@ exports.kugel = {
         global.dir.modules = path.join(global.dir.root, 'modules')
         global.dir.models  = path.join(global.dir.app,  'models')
         global.dir.storage = path.join(global.dir.app,  'storage')
-        global.dir.helpers = path.join(global.dir.app,  'helpers')
         global.dir.routes  = path.join(global.dir.app,  'routes')
         global.dir.data    = path.join(global.dir.app,  'data')
 
@@ -446,13 +445,11 @@ exports.kugel = {
 
         }).then(() => {
 
-            let compiledPath = path.join(global.dir.app, global.config.compiledViewsDest);
-
-            let folderPromise = [fs.ensureDir(compiledPath)];
+            let folderPromise = [];
 
             folders.forEach(folder => {
 
-                let compiledFolder = path.join(compiledPath, folder);
+                let compiledFolder = path.join(global.dir.app, global.config.compiledViewsDest, folder);
 
                 folderPromise.push(fs.ensureDir(compiledFolder));
 
@@ -468,6 +465,7 @@ exports.kugel = {
 
                 // @todo Entender os perigos na segurança que isso pode causar
                 global.config.viewsOptions.require = require;
+                global.config.viewsOptions.pretty  = true;
 
                 let viewContent = pug.renderFile(file, global.config.viewsOptions);
 

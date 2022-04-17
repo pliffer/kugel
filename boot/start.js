@@ -9,7 +9,8 @@ var minNodeVersion = 7
 
 var installOnly = process.argv.indexOf('--install-only') != -1;
 
-var ROOT = path.resolve(__dirname, '../');
+var KUGEL_ROOT = path.resolve(__dirname, '../');
+var ROOT = process.cwd();
 
 // Inicia o sistema, vamos verificar a estrutura de pastas atuais
 require('fs').readdir(ROOT, function(err, files){
@@ -205,8 +206,7 @@ require('fs').readdir(ROOT, function(err, files){
     global.dir.app     = path.join(global.dir.root, 'app')
     global.dir.doc     = path.join(global.dir.root, 'doc')
     global.dir.modules = path.join(global.dir.root, 'modules')
-    global.dir.helpers = path.join(global.dir.root, 'boot')
-    global.dir.boot    = path.join(global.dir.root, 'boot')
+    global.dir.boot    = path.join(KUGEL_ROOT, 'boot')
 
     require(path.join(global.dir.boot, 'util'))
 

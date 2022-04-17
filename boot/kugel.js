@@ -45,7 +45,6 @@ module.exports = {
 fs.ensureDirSync(global.dir.models)
 fs.ensureDirSync(global.dir.storage)
 fs.ensureDirSync(global.dir.modules)
-fs.ensureDirSync(global.dir.helpers)
 fs.ensureDirSync(global.dir.routes)
 fs.ensureDirSync(global.dir.controllers)
 fs.ensureDirSync(global.dir.doc)
@@ -72,6 +71,13 @@ if (global.dir.assets) {
 // Require main modules
 const express = require('express')
 const http    = require('http')
+
+if (global.config.database) {
+
+    global.db = require(path.join(global.dir.boot, 'database.js'));
+    global.Database = global.db
+
+}
 
 if(global.config.modules){
 
