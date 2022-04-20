@@ -74,7 +74,65 @@ require('fs').readdir(ROOT, function(err, files){
 
     if(typeof global.package.kugel == 'undefined'){
 
-        console.log("@fatal O package.json deve possuir a propriedade kugel")
+        console.log("@fatal O package.json deve possuir o atributo .kugel, exemplo: ")
+        console.log(`
+{
+    "name": "app-corp",
+    "version": "1.0.0",
+    "description": "",
+    "main": "appcorp.js",
+    "author": "Pliffer",
+    "license": "SEE IN LICENSE.md",
+    "nodemonConfig": {
+        "ignore": [
+            "*assets*",
+            "*modules*"
+        ]
+    },
+    "kugel": {
+        "modules": {
+            "core": [
+                "_kugel",
+                "cl",
+                "better-express"
+            ],
+            "startup": [
+                "i18n"
+            ],
+            "start": [
+                "socket.io",
+                "shortcut"
+            ]
+        },
+        "config": {
+            "gzip": true,
+            "morgan": true,
+            "session": false,
+            "socket": true,
+            "cors": false,
+            "assets": "assets",
+            "views": "views",
+            "template_engine": "pug",
+            "body_parser": false,
+            "jwt": false,
+            "database": false,
+            "modules": true,
+            "state": "development",
+            "compileViews": "views/public",
+            "compiledViewsDest": "assets",
+            "viewsOptions": {
+                "pretty": true
+            },
+            "logo": "img/favicon.png",
+            "theme_color": "#6de6ff",
+            "background_color": "#efefef",
+            "start_url": "/"
+        }
+    },
+    "dependencies": {
+    }
+}
+`)
         process.exit()
 
     }
