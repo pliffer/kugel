@@ -12,6 +12,15 @@ var installOnly = process.argv.indexOf('--install-only') != -1;
 var KUGEL_ROOT = path.resolve(__dirname, '../');
 var ROOT = process.cwd();
 
+var resolve;
+
+var promise = new Promise((_resolve) => {
+
+    resolve = _resolve;
+
+});
+
+
 // Inicia o sistema, vamos verificar a estrutura de pastas atuais
 require('fs').readdir(ROOT, function(err, files){
 
@@ -361,6 +370,8 @@ require('fs').readdir(ROOT, function(err, files){
 
                 console.log("\n" + '@started'.white.bgGreen + ' at ' + at.getHours() + 'h' + at.getMinutes() + 'm' + at.getSeconds() + 's (' + at.getTime() + ")\n")
 
+                resolve();
+
                 if(installOnly) process.exit();
 
             });
@@ -371,4 +382,4 @@ require('fs').readdir(ROOT, function(err, files){
 
 })
 
-
+module.exports = promise;

@@ -158,7 +158,17 @@ exports.env = {
 
         ];
 
-        if(require('../package.json').kugel.config.database){
+        let databaseEnabled = false;
+
+        let package = require(path.join(process.cwd() + '/package.json'));
+
+        if(package.kugel && typeof package.kugel.config !== 'undefined'){
+
+            databaseEnabled = package.kugel.config.database == true;
+
+        }
+
+        if(databaseEnabled){
 
             questionList.push({
                 name: 'MYSQL_HOST',
