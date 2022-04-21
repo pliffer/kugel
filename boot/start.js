@@ -370,7 +370,8 @@ require('fs').readdir(ROOT, function(err, files){
 
                 console.log("\n" + '@started'.white.bgGreen + ' at ' + at.getHours() + 'h' + at.getMinutes() + 'm' + at.getSeconds() + 's (' + at.getTime() + ")\n")
 
-                resolve();
+                // @todo Modificar para o _global
+                resolve(global);
 
                 if(installOnly) process.exit();
 
