@@ -1,4 +1,6 @@
-Framework ultra leve e simplificado kugel.
+Kugel é um framework ultra leve.
+
+Instale usando `npm install git+https://github.com/pliffer/kugel.git`
 
 Abaixo um simples boilerplate:
 
