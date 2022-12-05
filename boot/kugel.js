@@ -42,6 +42,8 @@ module.exports = {
 
 }
 
+fs.ensureDirSync(path.join(global.dir.boot, 'blank'))
+
 fs.ensureDirSync(global.dir.models)
 fs.ensureDirSync(global.dir.storage)
 fs.ensureDirSync(global.dir.modules)

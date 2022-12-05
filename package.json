@@ -19,7 +19,7 @@
 				"cl",
 				"blitz",
 				"mail",
-				"m25-inte"
+				"journews-backend"
 			],
 			"startup": [
 				"cube-tests-by-url"
@@ -28,12 +28,12 @@
 			"start": []
 		},
 		"config": {
-			"gzip": false,
-			"morgan": false,
+			"gzip": true,
+			"morgan": true,
 			"session": false,
 			"socket": false,
 			"cors": false,
-			"assets": false,
+			"assets": "assets",
 			"views": "views",
 			"template_engine": "pug",
 			"body_parser": false,
@@ -41,7 +41,7 @@
 			"database": false,
 			"modules": true,
 			"state": "development",
-			"http": false
+			"http": true
 		}
 	},
 	"dependencies": {

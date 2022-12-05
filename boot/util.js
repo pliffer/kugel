@@ -144,6 +144,12 @@ exports.env = {
             },
 
             {
+                name: 'MODULES_PATH',
+                message: 'Qual pasta dos módulos?',
+                default: path.join(global.dir.boot, 'blank')
+            },
+
+            {
                 name: 'HOST',
                 message: 'Qual o domínio que irá rodar?',
                 default: 'localhost'
