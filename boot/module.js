@@ -74,15 +74,49 @@ module.exports = {
 
         viewsWatcher.on('change', filePath => {
 
-            module.exports.runChange(filePath);
+            module.exports.runChange(filePath, 'views');
 
         });
 
         assetsWatcher.on('change', filePath => {
 
-            module.exports.runChange(filePath);
+            module.exports.runChange(filePath, 'assets');
 
         });
+        
+        if(process.env.APP_HOTRELOAD == 'true'){
+
+            let routesWatcher = chokidar.watch(global.dir.routes, {
+                persistent: true
+            });
+
+            let controllersWatcher = chokidar.watch(global.dir.controllers, {
+                persistent: true
+            });
+
+            let modelsWatcher = chokidar.watch(global.dir.models, {
+                persistent: true
+            });
+
+            routesWatcher.on('change', filePath => {
+
+                module.exports.runChange(filePath, 'routes');
+
+            });
+
+            controllersWatcher.on('change', filePath => {
+
+                module.exports.runChange(filePath, 'controllers');
+
+            });
+
+            modelsWatcher.on('change', filePath => {
+
+                module.exports.runChange(filePath, 'models');
+
+            });
+
+        }
 
         // Caso estejamos lidando com symlinks, não é necessário observar as mudanças nessa pasta
         if(process.env.MODULES_SYMLINK != 'true'){
@@ -93,7 +127,7 @@ module.exports = {
 
             modulesWatcher.on('change', filePath => {
 
-                module.exports.runChange(filePath);
+                module.exports.runChange(filePath, 'modules');
 
                 // @dry
                 if(module.exports.isSassEnabled()){
@@ -149,36 +183,71 @@ module.exports = {
 
     },
 
-    async runChange(filePath){
+    async runChange(filePath, type){
 
         let extensionFile = path.extname(filePath);
 
-        switch(extensionFile){
-            case '.pug':
+        switch(type){
 
-                global.modules.cl.execute('apply views');
+            case 'modules':
+            case 'assets':
+            case 'views':
 
-            break;
-            case '.sass':
-            case '.scss':
+                switch(extensionFile){
 
-                // @todo Verificar se é bom deixar default false dessa maneira
-                if(module.exports.isSassEnabled){
+                    case '.pug':
 
-                    await module.exports.compile.sass(filePath);
+                        global.modules.cl.execute('apply views');
+
+                    break;
+                    case '.jpg':
+                    case '.jpeg':
+                    case '.png':
+                    case '.gif':
+
+                        // Hot reload de imagem
+
+                    break;
+                    case '.sass':
+                    case '.scss':
+
+                        // @todo Verificar se é bom deixar default false dessa maneira
+                        if(module.exports.isSassEnabled){
+
+                            await module.exports.compile.sass(filePath);
+
+                        }
+
+                    break;
+                    case '.css':
+                    case '.js':
+
+                        // @todo Verificar alguma task na mudança dos assets
+
+                    break;
+                    default:
+                        // Arquivo não relevante foi alterado
+                    break;
 
                 }
 
             break;
-            case '.css':
-            case '.js':
+            case 'routes':
 
-                // @todo Verificar alguma task na mudança dos assets
+                // Todo
 
             break;
-            default:
-                // Arquivo não relevante foi alterado
+            case 'controllers':
+            case 'models':
+
+                console.log('Arquivo tipo ' + type.green + ' recarregado: ' + filePath);
+
+                delete require.cache[filePath];
+
+                require(filePath);
+
             break;
+
         }
 
         await module.exports.reapplyFiles(filePath);
@@ -271,7 +340,7 @@ module.exports = {
                 // Caso não tenha arquivos, ignora
                 if(!Object.keys(files).length) return;
 
-                for(file in files){
+                for(let file in files){
 
                     // Aqui, definimos onde cada arquivo será depositado
                     let destinationFolder = global.dir[file];
@@ -403,8 +472,14 @@ module.exports = {
                 let moduleRepoPath = path.join(process.env.MODULES_PATH, moduleName);
                 let modulePath     = path.join(global.dir.modules, moduleName);
 
+                // Determina se o módulo está em fase de desenvolvimento
+                // ou melhor, se ele está apenas na pasta do projeto
+                let wipModule = false;
+
                 // Se não existe na pasta de repositório
                 if(!fs.existsSync(moduleRepoPath)){
+
+                    wipModule = true;
 
                     // E se também não estiver na pasta do sistema
                     if(!fs.existsSync(modulePath)){
@@ -414,6 +489,8 @@ module.exports = {
                     }
 
                 }
+
+                if(wipModule) return;
 
                 modulesPromise.push(Util.tree(moduleRepoPath).then(files => {
 
@@ -465,7 +542,7 @@ module.exports = {
 
         return Promise.all(modulesPromise).then(() => {
 
-            for(file in uniqueFiles){
+            for(let file in uniqueFiles){
 
                 // Se tiver node_modules no caminho do arquivo
                 if(file.split('node_modules').length > 1) continue;
@@ -633,7 +710,7 @@ module.exports = {
 
         if(moduleObj.files){
 
-            for(file in moduleObj.files){
+            for(let file in moduleObj.files){
 
                 // Vamos ignorar tudo que não está em dir, pois tanto faz parte da lógica
                 // quanto precisamos limitar por segurança
@@ -741,7 +818,7 @@ module.exports = {
 
                     } else{
 
-                        for(file in moduleInstance.files){
+                        for(let file in moduleInstance.files){
 
                             if(!fs.existsSync(path.join(modulePath, file))){
 
@@ -829,68 +906,77 @@ module.exports = {
 
     },
 
+    debounceApplyModules: null,
+
     applyModules(){
 
-        let modulesApp    = fs.readdirSync(global.dir.modules);
-        let modulesOrigin = fs.readdirSync(process.env.MODULES_PATH);
+        // Impede que ao chamado multiplas vezes em menos de 500ms passe de uma execução
+        clearTimeout(module.exports.debounceApplyModules);
 
-        modulesApp.forEach(mod => {
+        module.exports.debounceApplyModules = setTimeout(function(){
 
-            let modulePath = path.join(global.dir.modules, mod);
+            let modulesApp    = fs.readdirSync(global.dir.modules);
+            let modulesOrigin = fs.readdirSync(process.env.MODULES_PATH);
 
-            if(!modulesOrigin.includes(mod)){
+            modulesApp.forEach(mod => {
 
-                return fs.copy(modulePath, path.join(process.env.MODULES_PATH, mod)).then(() => {
+                let modulePath = path.join(global.dir.modules, mod);
 
-                    console.log(`@info Adicionando o módulo ${mod} na pasta env.MODULES_PATH`);
+                if(!modulesOrigin.includes(mod)){
 
-                });
+                    return fs.copy(modulePath, path.join(process.env.MODULES_PATH, mod)).then(() => {
 
-            }
+                        console.log(`@info Adicionando o módulo ${mod} na pasta env.MODULES_PATH`);
 
-            Util.tree(modulePath).then(tree => {
+                    });
 
-                tree.forEach(async file => {
+                }
 
-                    let moduleFilePath       = path.join(modulePath, file);
-                    let moduleOriginFilePath = path.join(process.env.MODULES_PATH, mod, file);
+                Util.tree(modulePath).then(tree => {
 
-                    // Se for um arquivo css
-                    if(moduleFilePath.substr(-4) == '.css'){
+                    tree.forEach(async file => {
 
-                        // E já existir um .scss ou .sass, não vamos mandar a pasta original
-                        if(fs.existsSync(moduleFilePath.replace('.css', '.scss')) || fs.existsSync(moduleFilePath.replace('.css', '.sass'))){
+                        let moduleFilePath       = path.join(modulePath, file);
+                        let moduleOriginFilePath = path.join(process.env.MODULES_PATH, mod, file);
 
-                            return;
+                        // Se for um arquivo css
+                        if(moduleFilePath.substr(-4) == '.css'){
+
+                            // E já existir um .scss ou .sass, não vamos mandar a pasta original
+                            if(fs.existsSync(moduleFilePath.replace('.css', '.scss')) || fs.existsSync(moduleFilePath.replace('.css', '.sass'))){
+
+                                return;
+
+                            }
 
                         }
 
-                    }
+                        if(await Util.crc32(moduleFilePath) != await Util.crc32(moduleOriginFilePath)){
 
-                    if(await Util.crc32(moduleFilePath) != await Util.crc32(moduleOriginFilePath)){
+                            if(fs.existsSync(moduleOriginFilePath)) fs.unlinkSync(moduleOriginFilePath);
 
-                        if(fs.existsSync(moduleOriginFilePath)) fs.unlinkSync(moduleOriginFilePath);
+                            fs.copy(moduleFilePath, moduleOriginFilePath, {
+                                overwrite: true
+                            }).then(() => {
 
-                        fs.copy(moduleFilePath, moduleOriginFilePath, {
-                            overwrite: true
-                        }).then(() => {
+                                console.log(`@info Arquivo ${file.green} do modulo ${mod.green} aplicado com sucesso`);
 
-                            console.log(`@info Arquivo ${file.green} do modulo ${mod.green} aplicado com sucesso`);
+                            }).catch(e => {
 
-                        }).catch(e => {
+                                console.log(`@info Arquivo ${file.green} do modulo ${mod.green} ${"não aplicado".red}`);
+                                console.log(`@err ${e.toString()}`);
 
-                            console.log(`@info Arquivo ${file.green} do modulo ${mod.green} ${"não aplicado".red}`);
-                            console.log(`@err ${e.toString()}`);
+                            });
 
-                        });
+                        }
 
-                    }
+                    });
 
                 });
 
             });
 
-        });
+        }, 500);
 
     },
 

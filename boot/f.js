@@ -7,7 +7,7 @@ const {crc32}    = require('crc');
 const xlsx       = require('xlsx');
 const pug        = require('pug');
 
-let Logs = require(global.dir.boot + '/logs.js');
+let Logs = require(global.dir.helpers + '/logs.js');
 
 module.exports = {
 
@@ -723,32 +723,61 @@ module.exports = {
     checksum(triggerFile){
 
         let checksumPath = path.join(global.dir.logs, 'checksum.sha512');
+        let oldChecksum  = null;
 
         fs.ensureFile(checksumPath).then(() => {
 
-            fs.readFile(checksumPath, 'utf-8').then(oldChecksum => {
+            return fs.readFile(checksumPath, 'utf-8');
 
-                global.helpers.f.assetsChecksum().then(newChecksum => {
+        }).then(_oldChecksum => {
 
-                    global.helpers.vars.checksum = newChecksum;
+            oldChecksum = _oldChecksum;
 
-                    if(oldChecksum !== newChecksum){
+            return global.helpers.f.assetsChecksum();
 
-                        console.log('@warn Nova versão de assets detectada(notifica atualização PWA)');
+        }).then(newChecksum => {
 
-                        if(global.io) global.io.emit('checksum', newChecksum, triggerFile);
+            global.helpers.vars.checksum = newChecksum;
 
-                        fs.writeFile(checksumPath, newChecksum, 'utf-8');
+            if(oldChecksum == newChecksum) return;
 
-                    }
+            console.log('@warn Nova versão de assets detectada(notifica atualização PWA)');
 
-                });
+            if(global.io) global.io.emit('checksum', newChecksum, triggerFile);
 
-            });
+            return fs.writeFile(checksumPath, newChecksum, 'utf-8');
 
         });
 
-    }
+    },
+
+    /**
+     * Mascara CNPJ
+     * @param { jQuery element | DOM element } elm input onde sera aplicada a marcara
+     */
+    maskCnpj: function (elm) { // @todo renomear para maskCnpjInput
+
+        elm = $(elm);
+
+        var c = elm.val().substr(0, 18);
+
+        c = Helpers.toCnpj(c);
+
+        elm.val(c);
+
+    },
+
+    toCnpj(str) { // @todo renomear para maskCnpj
+
+        str = str.replace(/(\D)/g, "");
+        str = str.replace(/^(\d{2})(\d)/, "$1.$2");
+        str = str.replace(/(\d{3})(\d)/, "$1.$2");
+        str = str.replace(/(\d{3})(\d)/, "$1\/$2");
+        str = str.replace(/(\d{4})(\d{2})$/, "$1-$2");
+
+        return str;
+
+    },
 
 }
 

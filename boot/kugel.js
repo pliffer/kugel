@@ -45,6 +45,7 @@ module.exports = {
 fs.ensureDirSync(global.dir.models)
 fs.ensureDirSync(global.dir.storage)
 fs.ensureDirSync(global.dir.modules)
+fs.ensureDirSync(global.dir.helpers)
 fs.ensureDirSync(global.dir.routes)
 fs.ensureDirSync(global.dir.controllers)
 fs.ensureDirSync(global.dir.doc)
@@ -330,15 +331,31 @@ global.app.onload(() => {
 
 })
 
-server.listen(port, () => {
+let httpServerPromise = Promise.resolve()
 
-    console.log(`@info ${process.env.APP_NAME} listening on ${protocol}://${host}:${port}`)
+if (global.config.http !== false) {
 
-    if (global.config.socket) {
+    httpServerPromise = new Promise(resolve => {
 
-        global.socket.setup(io)
+        server.listen(port, () => {
 
-    }
+            console.log(`@info ${process.env.APP_NAME} listening on ${protocol}://${host}:${port}`)
+
+            if (global.config.socket) {
+
+                global.socket.setup(io)
+
+            }
+
+            resolve()
+
+        })
+
+    })
+
+}
+
+httpServerPromise.then(() => {
 
     fs.writeFile(path.join(global.dir.logs, 'last.pid'), process.pid.toString(), 'utf-8')
 
@@ -346,4 +363,4 @@ server.listen(port, () => {
 
     if(global.app.onstartserver) global.app.onstartserver(app)
 
-})
+});

@@ -11,6 +11,20 @@ if(global && global.master){
 
 }
 
+if(!process.env.LUNASTRO_HOST || !process.env.LUNASTRO_LOGS){
+
+    var warn = '@warn logs.js'.red;
+
+    if(!warn) warn = '@warn logs.js';
+
+    console.log("\n");
+    console.log(warn);
+    if(!process.env.LUNASTRO_HOST) console.log('@logs LUNASTRO_HOST is not defined');
+    if(!process.env.LUNASTRO_LOGS) console.log('@logs LUNASTRO_LOGS is not defined');
+    console.log("\n");
+
+}
+
 const Logs = {
 
     path: '',

@@ -1,9 +1,3 @@
-module.exports = {
+process.env.TZ = 'America/Sao_Paulo'
 
-	start(){
-
-		return require('./boot/start')
-
-	}
-
-}
+require('./boot/start')

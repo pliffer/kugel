@@ -158,17 +158,7 @@ exports.env = {
 
         ];
 
-        let databaseEnabled = false;
-
-        let package = require(path.join(process.cwd() + '/package.json'));
-
-        if(package.kugel && typeof package.kugel.config !== 'undefined'){
-
-            databaseEnabled = package.kugel.config.database == true;
-
-        }
-
-        if(databaseEnabled){
+        if(require('../package.json').kugel.config.database){
 
             questionList.push({
                 name: 'MYSQL_HOST',
@@ -353,6 +343,7 @@ exports.kugel = {
         global.dir.modules = path.join(global.dir.root, 'modules')
         global.dir.models  = path.join(global.dir.app,  'models')
         global.dir.storage = path.join(global.dir.app,  'storage')
+        global.dir.helpers = path.join(global.dir.app,  'helpers')
         global.dir.routes  = path.join(global.dir.app,  'routes')
         global.dir.data    = path.join(global.dir.app,  'data')
 

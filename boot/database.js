@@ -562,6 +562,51 @@ var Database = {
 
     },
 
+    tickUpdateTable: function(sql){
+
+        let table = Database.guessUpdateTable(sql);
+
+        if(!global.package.kugel.config) return;
+
+        let databaseTables = global.package.kugel.config.databaseTables;
+
+        if(!databaseTables) return;
+
+        if(!databaseTables[table]) return;
+
+        if(typeof databaseTables[table].tick == 'undefined')
+            databaseTables[table].tick = 0;
+
+        databaseTables[table].tick++;
+
+    },
+
+    guessUpdateTable: function(sql){
+
+        let table = '[TABLE NOT FOUND]';
+
+        if(sql.substr(0, 7) == 'UPDATE '){
+
+            table = sql.split('UPDATE ')[1].split(/\s/)[0].split('(')[0];
+
+        }
+
+        if(sql.substr(0, 12) == 'DELETE FROM '){
+
+            table = sql.split('DELETE FROM ')[1].split(/\s/)[0].split('(')[0];
+
+        }
+
+        if(sql.substr(0, 12) == 'INSERT INTO '){
+
+            table = sql.split('INSERT INTO ')[1].split(/\s/)[0].split('(')[0];
+
+        }
+
+        return table;
+
+    },
+
     backupStructure: function(callback){
 
         return global.db.fetch("SHOW TABLES").then(tables => {
@@ -712,299 +757,8 @@ var Database = {
 
         // Salva um relatório a cada hora
         setInterval(Database.saveReport, 1000 * 60 * 60);
-
-        // Retorna apenas a primeira ROW
-        client.readQuery = (sql, prepared) => {
-
-            return new Promise(function(resolve, reject){
-
-                // Mostra um aviso, caso a query não tenha limit 1 no final
-                if(sql.substr(-7).toLowerCase()!='limit 1'){
-
-                    console.warn("Database.js: read Query sem limit 1", sql);
-
-                }
-
-                // Executa a query
-                client.query(sql, prepared, (err, answer) => {
-
-                    if(err){
-
-                        Logs.save('database-read-query', {
-                            err: err,
-                            prepared: prepared,
-                            sql: sql
-                        }, 20);
-
-                        reject(err);
-
-                    } else(resolve(answer[0]));
-
-                });
-
-            });
-
-        };
-
-        // Retorna apenas a primeira ROW
-        client.readQueryWithoutLogs = (sql, prepared) => {
-
-            return new Promise(function(resolve, reject){
-
-                // Mostra um aviso, caso a query não tenha limit 1 no final
-                if(sql.substr(-7).toLowerCase()!='limit 1'){
-                    console.warn("Database.js: read Query sem limit 1");
-                }
-
-                // Executa a query
-                client.query(sql, prepared, (err, answer) => {
-
-                    if(err){
-
-                        reject(err);
-
-                    } else(resolve(answer[0]));
-
-                });
-
-            });
-
-        };
-
-        // Retorna apenas a primeira ROW
-        client.internalQuery = (sql, prepared) => {
-
-            if(process.env.VERBOSE == "true") console.log(sql.magenta);
-
-            return new Promise(function(resolve, reject){
-
-                // Executa a query
-                client.query(sql, prepared, (err, answer) => {
-
-                    if(err){
-
-                        Logs.save('database-internal-query', {
-                            err: err,
-                            sql: sql,
-                            prepared: prepared
-                        }, 20);
-
-                        reject(err);
-
-                    } else(resolve(answer[0]));
-
-                });
-
-            });
-
-        };
-
-        // Retorna apenas a primeira ROW
-        client.updateQuery = (sql, prepared) => {
-
-            let t0 = new Date().getTime();
-            let slowQuery = false;
-
-            let slowTimeout = setTimeout(function(){
-
-                slowQuery = true;
-
-            }, Database.slowDelay);
-
-            prepared = prepared || [];
-
-            return new Promise(function(resolve, reject){
-
-                // Executa a query
-                client.query(sql, prepared, (err,result) => {
-
-                    if(err){
-
-                        Logs.save('database-update-query', {
-                            err: err,
-                            sql: sql,
-                            prepared: prepared
-                        }, 20);
-
-                        return reject(err.toString());
-
-                    }
-
-                    if(process.env.VERBOSE == "true") console.log(sql.magenta, new Date().getTime() - t0, `ms (uq:${client.threadId})`.green);
-
-                    clearTimeout(slowTimeout);
-
-                    if(slowQuery){
-
-                        Logs.save('slow query', {
-                            sql: sql,
-                            prepared: prepared,
-                            delay: new Date().getTime() - t0
-                        });
-
-                    }
-                    
-                    result.id = result.insertedId;
-                    resolve(result);
-
-                });
-
-            });
-
-        };
-
-        // Retorna a lista de rows
-        client.fetch = function(sql, prepared, callback){
-
-            let t0 = new Date().getTime();
-            let slowQuery = false;
-
-            let slowTimeout = setTimeout(function(){
-
-                slowQuery = true;
-
-            }, Database.slowDelay);
-
-            return new Promise((resolve, reject) => {
-
-                client.query(sql, prepared, (err, answer) => {
-
-                    if(err){
-
-                        Logs.save('database-fetch-query', {
-                            err: err,
-                            sql: sql,
-                            prepared: prepared
-                        }, 20);
-
-                        reject(err);
-
-                    } else{
-
-                        resolve(answer);
-
-                    }
-
-                    if(process.env.VERBOSE == "true") console.log(sql.magenta, new Date().getTime() - t0, `ms (f:${client.threadId})`.green);
-
-                    clearTimeout(slowTimeout);
-
-                    if(slowQuery){
-
-                        Logs.save('slow query', {
-                            sql: sql,
-                            prepared: prepared,
-                            delay: new Date().getTime() - t0
-                        });
-
-                    }
-
-                });
-
-            });
-
-        };
-
-        // Retorna a lista de rows
-        client.fetchByCache = function(cacheDelay, sql, prepared, callback){
-
-            if(typeof Database.cache.sql[sql] !== 'undefined'){
-
-                return Promise.resolve(Database.cache.sql[sql]);
-
-            }
-
-            let t0 = new Date().getTime();
-            let slowQuery = false;
-
-            let slowTimeout = setTimeout(function(){
-
-                slowQuery = true;
-
-            }, Database.slowDelay);
-
-            return new Promise((resolve, reject) => {
-
-                client.query(sql, prepared, (err, answer) => {
-
-                    if(err){
-
-                        Logs.save('database-fetch-query', {
-                            err: err,
-                            sql: sql,
-                            prepared: prepared
-                        }, 20);
-
-                        reject(err);
-
-                    } else{
-
-                        Database.cache.sql[sql] = answer;
-
-                        setTimeout(function(){
-
-                            // Depois do tempo proposto, vamos apagar o cache
-                            delete Database.cache.sql[sql];
-
-                        }, cacheDelay);
-
-                        resolve(answer);
-
-                    }
-
-                    if(process.env.VERBOSE == "true") console.log(sql.magenta, new Date().getTime() - t0, `ms (f:${client.threadId})`.green);
-
-                    clearTimeout(slowTimeout);
-
-                    if(slowQuery){
-
-                        Logs.save('slow query', {
-                            sql: sql,
-                            prepared: prepared,
-                            delay: new Date().getTime() - t0
-                        });
-
-                    }
-
-                });
-
-            });
-
-        };
-
-        client.uuid = function(){
-            return new Promise((resolve, reject) => {
-
-                client.readQuery(`SELECT UUID() as uuid LIMIT 1`).then(uuid => {
-                    resolve(uuid.uuid);
-                }).catch(reject);
-
-            });
-        }
-
-        client.raw = client.query;
-
-        client.prepared    = '?';
-
-        function doBackup(versionName){
-
-            var version = versionName || 'latest';
-
-            version = version.replace(/\(/g, '');
-            version = version.replace(/\)/g, '');
-            version = version.replace(/\s/g, '_');
-
-            console.log("Realizando Backup", version);
-
-            cp.exec("mysqldump -u " + process.env.MYSQL_USER + " --password=\"" + process.env.MYSQL_PASS + "\" " + process.env.MYSQL_DB + " > .sql/" + version + ".sql");
-            
-            if(versionName){
-
-                cp.exec("mysqldump -u " + process.env.MYSQL_USER + " --password=\"" + process.env.MYSQL_PASS + "\" " + process.env.MYSQL_DB + " > .sql/latest.sql");
-
-            }
-
-        }
+        
+        Database.createSqlFunctions(client);
 
         client.con = () => {
 
@@ -1097,6 +851,8 @@ var Database = {
 
             // Retorna apenas a primeira ROW
             poolClient.updateQuery = (sql, prepared) => {
+
+                Database.tickUpdateTable(sql);
 
                 let t0 = new Date().getTime();
                 let slowQuery = false;
@@ -1228,6 +984,66 @@ var Database = {
                 });
             }
 
+            poolClient.beginTransaction = () => {
+
+                return new Promise((resolve, reject) => {
+
+                    pool.getConnection((connectionErr, connection) => {
+
+                        if (connectionErr) return reject(connectionErr);
+
+                        connection.beginTransaction(transactionErr => {
+
+                            let rollbackRelease = () => {
+
+                                return new Promise(rollbackResolve => {
+                                
+                                    connection.rollback(() => {
+                                        
+                                        connection.release();
+    
+                                        return rollbackResolve();
+                                    
+                                    });
+
+                                });
+                                
+                            };
+    
+                            if (transactionErr)
+                                return rollbackRelease().then(() => reject(err));
+    
+                            Database.createSqlFunctions(connection);
+
+                            connection.rollbackRelease = rollbackRelease;
+                            
+                            connection.commitRelease = () => {
+
+                                return new Promise((commitResolve, commitReject) => {
+
+                                    connection.commit(commitErr => {
+    
+                                        if (commitErr)
+                                            rollbackRelease().then(() => commitReject(commitErr));
+                                        else
+                                            commitResolve();
+    
+                                    });
+
+                                });
+
+                            }
+
+                            resolve(connection);
+    
+                        });
+
+                    })
+
+                });
+
+            }
+
             return Promise.resolve(poolClient);
 
         }
@@ -1240,8 +1056,243 @@ var Database = {
 
         });
 
+        function doBackup(versionName){
+
+            var version = versionName || 'latest';
+
+            version = version.replace(/\(/g, '');
+            version = version.replace(/\)/g, '');
+            version = version.replace(/\s/g, '_');
+
+            console.log("Realizando Backup", version);
+
+            cp.exec("mysqldump -u " + process.env.MYSQL_USER + " --password=\"" + process.env.MYSQL_PASS + "\" " + process.env.MYSQL_DB + " > .sql/" + version + ".sql");
+            
+            if(versionName){
+
+                cp.exec("mysqldump -u " + process.env.MYSQL_USER + " --password=\"" + process.env.MYSQL_PASS + "\" " + process.env.MYSQL_DB + " > .sql/latest.sql");
+
+            }
+
+        }
+
 
         return client;
+
+    },
+
+    createSqlFunctions(con) {
+
+        con.raw = con.query;
+        con.prepared = '?';
+
+        // Retorna apenas a primeira ROW
+        con.readQuery = (sql, prepared) => {
+
+            return new Promise((resolve, reject) => {
+
+                // Mostra um aviso, caso a query não tenha limit 1 no final
+                if (sql.substr(-7).toLowerCase() != 'limit 1')
+                    console.warn("Database.js: read Query sem limit 1", sql);
+
+                // Executa a query
+                con.query(sql, prepared, (err, answer) => {
+
+                    if (err) {
+
+                        Logs.save('database-read-query', { err, prepared, sql }, 20);
+
+                        reject(err);
+
+                    } else resolve(answer[0]);
+
+                });
+
+            });
+
+        };
+
+        // Retorna apenas a primeira ROW
+        con.readQueryWithoutLogs = (sql, prepared) => {
+
+            return new Promise((resolve, reject) => {
+
+                // Mostra um aviso, caso a query não tenha limit 1 no final
+                if (sql.substr(-7).toLowerCase() != 'limit 1')
+                    console.warn("Database.js: read Query sem limit 1");
+
+                // Executa a query
+                con.query(sql, prepared, (err, answer) => {
+
+                    if (err)
+                        reject(err);
+                    else
+                        resolve(answer[0]);
+
+                });
+
+            });
+
+        };
+
+        // Retorna apenas a primeira ROW
+        con.internalQuery = (sql, prepared) => {
+
+            if (process.env.VERBOSE == "true") console.log(sql.magenta);
+
+            return new Promise((resolve, reject) => {
+
+                // Executa a query
+                con.query(sql, prepared, (err, answer) => {
+
+                    if (err) {
+
+                        Logs.save('database-internal-query', { err, sql, prepared }, 20);
+
+                        reject(err);
+
+                    } else resolve(answer[0]);
+
+                });
+
+            });
+
+        };
+
+        // Retorna apenas a primeira ROW
+        con.updateQuery = (sql, prepared) => {
+
+            Database.tickUpdateTable(sql);
+
+            let t0 = new Date().getTime();
+            let slowQuery = false;
+
+            let slowTimeout = setTimeout(() => slowQuery = true, Database.slowDelay);
+
+            prepared = prepared || [];
+
+            return new Promise((resolve, reject) => {
+
+                // Executa a query
+                con.query(sql, prepared, (err, result) => {
+
+                    if (err) {
+
+                        Logs.save('database-update-query', { err, sql, prepared }, 20);
+
+                        return reject(err.toString());
+
+                    } else {
+
+                        result.id = result.insertedId;
+    
+                        resolve(result);
+
+                    }
+
+                    if (process.env.VERBOSE == "true") 
+                        console.log(sql.magenta, new Date().getTime() - t0, `ms (uq:${con.threadId})`.green);
+
+                    clearTimeout(slowTimeout);
+
+                    if (slowQuery)
+                        Logs.save('slow query', { sql, prepared, 'delay': new Date().getTime() - t0 });
+
+                });
+
+            });
+
+        };
+
+        // Retorna a lista de rows
+        con.fetch = (sql, prepared, callback) => {
+
+            let t0 = new Date().getTime();
+            let slowQuery = false;
+
+            let slowTimeout = setTimeout(() => slowQuery = true, Database.slowDelay);
+
+            return new Promise((resolve, reject) => {
+
+                con.query(sql, prepared, (err, answer) => {
+
+                    if (err) {
+
+                        Logs.save('database-fetch-query', { err, sql, prepared }, 20);
+
+                        reject(err);
+
+                    } else resolve(answer);
+
+                    if (process.env.VERBOSE == "true") 
+                        console.log(sql.magenta, new Date().getTime() - t0, `ms (f:${con.threadId})`.green);
+
+                    clearTimeout(slowTimeout);
+
+                    if (slowQuery)
+                        Logs.save('slow query', { sql, prepared, 'delay': new Date().getTime() - t0 });
+
+                });
+
+            });
+
+        };
+
+        // Retorna a lista de rows
+        con.fetchByCache = (cacheDelay, sql, prepared, callback) => {
+
+            if (typeof Database.cache.sql[sql] !== 'undefined')
+                return Promise.resolve(Database.cache.sql[sql]);
+
+            let t0 = new Date().getTime();
+            let slowQuery = false;
+
+            let slowTimeout = setTimeout(() => slowQuery = true, Database.slowDelay);
+
+            return new Promise((resolve, reject) => {
+
+                con.query(sql, prepared, (err, answer) => {
+
+                    if (err) {
+
+                        Logs.save('database-fetch-query', { err, sql, prepared }, 20);
+
+                        reject(err);
+
+                    } else {
+
+                        Database.cache.sql[sql] = answer;
+                        
+                        // Depois do tempo proposto, vamos apagar o cache
+                        setTimeout(() => delete Database.cache.sql[sql], cacheDelay);
+
+                        resolve(answer);
+
+                    }
+
+                    if (process.env.VERBOSE == "true") 
+                        console.log(sql.magenta, new Date().getTime() - t0, `ms (f:${con.threadId})`.green);
+
+                    clearTimeout(slowTimeout);
+
+                    if (slowQuery)
+                        Logs.save('slow query', { sql, prepared, 'delay': new Date().getTime() - t0 });
+
+                });
+
+            });
+
+        };
+
+        con.uuid = () => {
+
+            return new Promise((resolve, reject) => {
+
+                con.readQuery(`SELECT UUID() as uuid LIMIT 1`).then(({ uuid }) => resolve(uuid)).catch(reject);
+
+            });
+
+        }
 
     }
 
