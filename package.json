@@ -1,5 +1,5 @@
 {
-	"name": "inte",
+	"name": "kugel",
 	"version": "1.0.0",
 	"description": "",
 	"main": "kugel.js",
@@ -19,7 +19,6 @@
 				"cl",
 				"blitz",
 				"mail",
-				"journews-backend"
 			],
 			"startup": [
 				"cube-tests-by-url"
