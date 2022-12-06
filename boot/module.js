@@ -355,8 +355,6 @@ module.exports = {
                             destinationFolder = path.join(global.dir.app, file);
                         }
 
-                        console.log(moduleName, file, asset, destinationFolder);
-
                         let absoluteFileSrc = asset.replace(path.join(global.dir.modules, moduleName, file), '');
 
                         let destinationFolderPath = path.join(destinationFolder, absoluteFileSrc);
