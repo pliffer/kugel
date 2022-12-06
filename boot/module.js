@@ -11,6 +11,10 @@ require('colors');
 
 module.exports = {
 
+    viewsSubFolders: ['views/page', 'views/includes', 'views/public', 'views/components'],
+
+    specialFolders: ['views', 'controllers', 'routes', 'models', 'data', 'assets'],
+
     specialPaths: ['views/page', 'views/public', 'views/components'],
 
     ignorableFiles: [path.sep + 'package-lock.json'],
@@ -345,46 +349,13 @@ module.exports = {
                     // Aqui, definimos onde cada arquivo será depositado
                     let destinationFolder = global.dir[file];
 
-                    // @todo Pensar em fazer o mesmo para outros tipos de arquivo(routes, modules, etc)
-                    if(file == 'views'){
-
-                        // No caso de views, preferimos que fique dentro de uma pasta
-                        // chamada modules, por motivos de include no pug
-                        destinationFolder = path.join(global.dir[file], 'modules', moduleName);
-
-                        applyPromise.push(fs.ensureDirSync(destinationFolder));
-
-                    }
-
-                    if(file == 'views/page'){
-
-                        destinationFolder = path.join(global.dir.views, 'page');
-
-                    }
-
-                    if(file == 'views/includes'){
-
-                        destinationFolder = path.join(global.dir.views, 'includes');
-
-                    }
-
-                    if(file == 'views/public'){
-
-                        destinationFolder = path.join(global.dir.views, 'public');
-
-                    }
-
-                    if(file == 'views/components'){
-
-                        destinationFolder = path.join(global.dir.views, 'components');
-
-                    }
-
-                    // @todo Criar situação de verificar quando o file tanto não existe no sistema, quanto
-                    // não está em specialPaths
-                    // if(!module.exports.specialPaths.includes(file) && destinationFolder)
-
                     files[file].forEach(asset => {
+
+                        if(module.exports.viewsSubFolders.includes(file)){
+                            destinationFolder = path.join(global.dir.app, file);
+                        }
+
+                        console.log(moduleName, file, asset, destinationFolder);
 
                         let absoluteFileSrc = asset.replace(path.join(global.dir.modules, moduleName, file), '');
 
@@ -704,51 +675,25 @@ module.exports = {
             return global.logs.save('undefined moduleObj', {moduleName: moduleName});
         }
 
-        let files = {};
+        let modulePath = path.join(global.dir.modules, moduleName);
 
-        let filesPromise = [];
+        return Util.tree(modulePath).then(treeFiles => {
 
-        if(moduleObj.files){
+            let grouped = {};
 
-            for(let file in moduleObj.files){
+            treeFiles.forEach(file => {
 
-                // Vamos ignorar tudo que não está em dir, pois tanto faz parte da lógica
-                // quanto precisamos limitar por segurança
-                if(typeof global.dir[file] === 'undefined' && !module.exports.specialPaths.includes(file)){
+                let folder   = file.split(path.sep)[1];
+                let filePath = path.join(modulePath, file)
 
-                    console.log(`@info Propriedade ${file} de .files ignorada, por não existir dentro de app (${moduleName})`)
+                if(!module.exports.specialFolders.includes(folder)) return
 
-                    continue;
+                grouped[folder] ??= [];
+                grouped[folder].push(filePath);
 
-                }
+            });
 
-                filesPromise.push(new Promise((resolve, reject) => {
-
-                    let filePath = path.join(global.dir.modules, moduleName, file);
-
-                    let thatFile = file;
-
-                    let walk = walkdir(filePath);
-
-                    walk.on('file', (asset) => {
-
-                        if(!files[thatFile]) files[thatFile] = [];
-
-                        files[thatFile].push(asset);
-
-                    });
-
-                    walk.on('end', resolve);
-
-                }));
-
-            }
-
-        }
-
-        return Promise.all(filesPromise).then(() => {
-
-            return files;
+            return grouped;
 
         });
 
