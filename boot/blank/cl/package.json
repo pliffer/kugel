@@ -1,0 +1,15 @@
+{
+  "name": "cl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cl.js",
+  "author": "Pliffer",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "inquirer": "^8.2.0",
+    "opn": "^6.0.0",
+    "request": "^2.88.0",
+    "xml-js": "^1.6.11"
+  }
+}

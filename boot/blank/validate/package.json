@@ -1,0 +1,15 @@
+{
+  "name": "validate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "validate.js",
+  "author": "Pliffer",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "fs-extra": "^10.0.0",
+    "request": "^2.88.0",
+    "validate": "^5.1.0",
+    "xml-js": "^1.6.11"
+  }
+}

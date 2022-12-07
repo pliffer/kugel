@@ -1,0 +1,14 @@
+{
+  "name": "blitz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "blitz.js",
+  "author": "Pliffer",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "node-schedule": "^2.1.0",
+    "request": "^2.88.0",
+    "xml-js": "^1.6.11"
+  }
+}
