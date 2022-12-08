@@ -87,7 +87,7 @@ module.exports = {
             module.exports.runChange(filePath, 'assets');
 
         });
-        
+
         if(process.env.APP_HOTRELOAD == 'true'){
 
             let routesWatcher = chokidar.watch(global.dir.routes, {
@@ -424,7 +424,7 @@ module.exports = {
 
         let uniqueFiles = {};
 
-        for(step in bootSteps){
+        for(let step in bootSteps){
 
             let modules = bootSteps[step];
 
@@ -588,7 +588,7 @@ module.exports = {
             // @tag 1231418Xaa
 
             // Passa por todos os modulos carregados
-            for(mod in global.modules){
+            for(let mod in global.modules){
 
                 // Se for o módulo principal (este arquivo), não vamos recarrega-lo
                 if(mod == 'module') continue;
@@ -937,7 +937,7 @@ module.exports = {
 
         let applyPromise = [];
 
-        for(moduleName in global.modules){
+        for(let moduleName in global.modules){
 
             if(lockOnModule && lockOnModule != moduleName) continue; 
 

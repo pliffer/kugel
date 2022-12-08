@@ -7,7 +7,7 @@ const {crc32}    = require('crc');
 const xlsx       = require('xlsx');
 const pug        = require('pug');
 
-let Logs = require(global.dir.helpers + '/logs.js');
+let Logs = require(global.dir.boot + '/logs.js');
 
 module.exports = {
 
@@ -777,7 +777,7 @@ module.exports = {
 
         return str;
 
-    },
+    }
 
 }
 

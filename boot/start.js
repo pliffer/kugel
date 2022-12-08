@@ -11,6 +11,14 @@ var installOnly = process.argv.indexOf('--install-only') != -1;
 
 var ROOT = path.resolve(__dirname, '../');
 
+var resolve;
+
+var promise = new Promise((_resolve) => {
+
+    resolve = _resolve;
+
+});
+
 // Inicia o sistema, vamos verificar a estrutura de pastas atuais
 require('fs').readdir(ROOT, function(err, files){
 
@@ -73,7 +81,71 @@ require('fs').readdir(ROOT, function(err, files){
 
     if(typeof global.package.kugel == 'undefined'){
 
-        console.log("@fatal O package.json deve possuir a propriedade kugel")
+        console.log("@fatal O package.json deve possuir o atributo .kugel, exemplo: ")
+
+        let kugelExample = JSON.parse(JSON.stringify(global.package));
+
+        kugelExample.kugel = {
+
+            "modules": {
+
+                "core": [
+                    "_kugel",
+                    "cl",
+                    "better-express"
+                ],
+
+                "startup": [
+                    "i18n"
+                ],
+
+                "start": [
+                    "socket.io",
+                    "shortcut"
+                ]
+
+            },
+
+            "config": {
+                "gzip": true,
+                "morgan": true,
+                "session": false,
+                "socket": false,
+                "cors": false,
+                "assets": "assets",
+                "views": "views",
+                "template_engine": "pug",
+                "body_parser": false,
+                "jwt": false,
+                "database": false,
+                "file_upload": false,
+                "modules": true,
+                "state": "development",
+                "compileViews": "views/public",
+                "compiledViewsDest": "assets",
+
+                "viewsOptions": {
+                    "pretty": true
+                },
+
+                "logo": "img/favicon.png",
+                "theme_color": "#6de6ff",
+                "background_color": "#efefef",
+                "start_url": "/"
+
+            }
+
+        };
+
+        kugelExample.nodemonConfig = {
+            "ignore": [
+                "*assets*",
+                "*modules*"
+            ]
+        };
+    
+        console.log(JSON.stringify(kugelExample, null, 4));
+
         process.exit()
 
     }
@@ -85,21 +157,23 @@ require('fs').readdir(ROOT, function(err, files){
 
     global.modules = {}
 
-    var fs    = require('fs-extra')
+    var fs = require('fs-extra')
 
     var kugel
 
     global.app = {
 
         // Status de cada estágio na inicialização do sistema
-        loaded:  false,
-        db:      false,
-        started: false,
+        loaded:   false,
+        db:       false,
+        started:  false,
+        routered: false,
 
         // Funções que estão pendentes para rodar 
-        loadList:  [],
-        dbList:    [],
-        startList: [],
+        loadList:   [],
+        dbList:     [],
+        startList:  [],
+        routerList: [],
 
         onload(f){
 
@@ -122,6 +196,28 @@ require('fs').readdir(ROOT, function(err, files){
             if(global.app.started) return f()
 
             global.app.startList.push(f)
+
+        },
+
+        onrouter(f){
+
+            var express = require('express');
+
+            if(global.app.routered){
+
+                let expressRouter = new express.Router()
+
+                let appRouter = global.__router(expressRouter);
+
+                f(appRouter);
+
+                global.express.use(expressRouter);
+
+                return
+
+            }
+
+            global.app.routerList.push(f)
 
         },
 
@@ -169,6 +265,7 @@ require('fs').readdir(ROOT, function(err, files){
 
             // Impede a adição de itens na lista de start
             global.app.start = true
+            global.express = app
 
             // Se houver itens na lista de start
             if(global.app.startList.length){
@@ -186,6 +283,35 @@ require('fs').readdir(ROOT, function(err, files){
                 routing(app);
 
             });
+
+        },
+
+        // Assim que o express iniciar
+        onroutersetup(app){
+
+            // Impede a adição de itens na lista de start
+            global.app.routered = true
+
+            // Se houver itens na lista
+            if(global.app.routerList.length){
+
+                // Executa cada item da lista
+                global.app.routerList.forEach(f => {
+
+                    let expressRouter = new express.Router()
+
+                    let appRouter = global.__router(expressRouter);
+
+                    f(appRouter);
+
+                    app.use(expressRouter);
+
+                });
+
+                // Limpa a lista, só para o garbage colector agir
+                global.app.routerList = []
+
+            }
 
         }
 
@@ -303,6 +429,9 @@ require('fs').readdir(ROOT, function(err, files){
 
                 console.log("\n" + '@started'.white.bgGreen + ' at ' + at.getHours() + 'h' + at.getMinutes() + 'm' + at.getSeconds() + 's (' + at.getTime() + ")\n")
 
+                // @todo Modificar para o _global
+                resolve(global);
+
                 if(installOnly) process.exit();
 
             });
@@ -313,4 +442,4 @@ require('fs').readdir(ROOT, function(err, files){
 
 })
 
-
+module.exports = promise;
