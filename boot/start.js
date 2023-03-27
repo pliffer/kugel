@@ -13,7 +13,7 @@ console.log('@starting Iniciando (' + startedAt + ')');
 if(!fs.existsSync(process.env.ROOT + '/.env')){
 
     console.log('@starting Criando .env');
-    fs.copyFileSync(process.env.ROOT + '/.env.example', process.env.ROOT + '/.env');
+    fs.copyFileSync(path.join(__dirname, '../.env.example'), process.env.ROOT + '/.env');
 
 }
 
@@ -30,7 +30,7 @@ module.exports = new Promise((resolve) => { triggerStart = resolve });
     
         // Lê arquivos na raiz do projeto
         const rootFiles = fs.readdirSync(process.env.ROOT);
-    
+
         // Exibe mensagem sobre dependências e recomendações
         console.log('@starting Dependencias e recomendações');
     
