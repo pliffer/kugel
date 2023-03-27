@@ -1,15 +1,9 @@
-process.env.TZ = 'America/Sao_Paulo'
+module.exports = {
 
-require('./boot/start')
+    init(){
 
-let betterExpress = require('kugel-better-express');
+        return require('./boot/start');
 
-betterExpress.router(router => {
+    }
 
-    router.get('/', ({query}) => {
-
-        return 'Hello World!';
-
-    });
-
-});
+}
