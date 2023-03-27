@@ -39,27 +39,36 @@ module.exports = {
 
                 }
 
+                // Caso não tenha o módulo
                 if(!fs.existsSync(modulePath)) throw new Error(`@module ${moduleName.red} não encontrado`);
 
+                // Caso não tenha o package.json
                 if(!fs.existsSync(path.join(modulePath, 'package.json'))) throw new Error(`@module ${moduleName.red} não possui o package.json`);
 
+                // Carrega o package.json
                 let package = fs.readJsonSync(path.join(modulePath, 'package.json'));
-
+                
+                // Caso não tenha o campo kugel no package.json
                 if(!package.kugel) throw new Error(`@module ${moduleName.red} não possui o campo kugel no package.json`);
 
                 // @todo Remover dependencia de kugel-server
                 if(package.kugel.static){
 
+                    // Define a pasta de arquivos estáticos
                     let staticPath = path.join(modulePath, package.kugel.static);
 
+                    // Adiciona a pasta de arquivos estáticos
                     Components.get('express-static').add(staticPath);
 
                 }
 
+                // @todo Remover dependencia de kugel-server
                 if(package.kugel.views){
 
+                    // Define a pasta de views
                     let viewsPath = path.join(modulePath, package.kugel.views);
 
+                    // Adiciona a pasta de views
                     Components.get('express-views').add(viewsPath);
 
                 }
@@ -70,6 +79,7 @@ module.exports = {
 
                 console.log(`@module ${moduleName.green} carregado`);
 
+                // Carrega o módulo, para que possa rodar suas funções internas
                 require(modulePath);
 
                 if(link){
