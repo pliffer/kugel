@@ -11,7 +11,7 @@ if(!name) {
 
 }
 
-let modulePath = path.join(__dirname, '../..', 'modules', name);
+let modulePath = path.join(process.cwd(), 'modules', name);
 
 if(!fs.existsSync(modulePath)) {
 
@@ -21,7 +21,7 @@ if(!fs.existsSync(modulePath)) {
 
 }
 
-let packageLocation = path.resolve(__dirname, '../../package.json');
+let packageLocation = path.resolve(process.cwd(), 'package.json');
 
 let package = require(packageLocation);
 
@@ -35,16 +35,6 @@ for(let step in package.kugel.modules) {
 
     }
 }
-
-// if(package.kugel.modules.lightstart.includes(name)) {
-
-//     console.log('@error Module not enabled');
-
-//     process.exit();
-
-// }
-
-// package.kugel.modules.lightstart.splice(package.kugel.modules.lightstart.indexOf(name), 1);
 
 fs.writeFileSync(packageLocation, JSON.stringify(package, null, 4));
 

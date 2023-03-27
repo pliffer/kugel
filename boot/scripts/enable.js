@@ -11,7 +11,7 @@ if(!name) {
 
 }
 
-let modulePath = path.join(__dirname, '../..', 'modules', name);
+let modulePath = path.join(process.cwd(), 'modules', name);
 
 if(!fs.existsSync(modulePath)) {
 
@@ -21,7 +21,7 @@ if(!fs.existsSync(modulePath)) {
 
 }
 
-let packageLocation = path.resolve(__dirname, '../../package.json');
+let packageLocation = path.resolve(process.cwd(), 'package.json');
 
 let package = require(packageLocation);
 

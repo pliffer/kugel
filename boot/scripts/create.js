@@ -13,7 +13,7 @@ if(!name) {
 
 }
 
-let modulePath = path.join(__dirname, '../..', 'modules', name);
+let modulePath = path.join(process.cwd(), 'modules', name);
 
 if(fs.existsSync(modulePath)) {
 
@@ -38,7 +38,9 @@ fs.writeFileSync(path.join(modulePath, 'package.json'), JSON.stringify({
     version: '1.0.0',
     description: 'A module created with Kugel',
     main: 'index.js',
-    kugel: {}
+    kugel: {
+        version: 2
+    }
 }, null, 4));
 
 console.log('@info Module created');

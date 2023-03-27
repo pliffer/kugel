@@ -1,53 +1,102 @@
-Definições gerais de kugel: 
+# Kugel
 
-    O app é um boilerplate para a criação de módulos dentro do framework kugel. Tem o objetivo de facilitar a criação de softwares
-    dentro de qualquer linguagem de programação e em qualquer plataforma
+Kugel é um framework em node.js, para a criação de aplicações modulares web. Ele é flexível para ser totalmente configurado pelos seus módulos, sendo os mesmos responsáveis por definir as rotas, os modelos de dados, as views e os controllers.
 
-    Gerenciamento de logs
-    
+## Instalação
 
-Modulos principais:
+Para instalar o Kugel, basta executar o seguinte comando:
+```
 
-	Server
-		Interface de inicialização de um servidor http
+	npm install --save github:pliffer/kugel
 
-		Observa pelo process.env.PORT para definir a porta de escuta, que por padrão é 8080
+```
 
-    Better Express
-        Oferece uma interface de requisições http mais amigável, com camada de autenticação JWT e aguarda por promises
+Isso já basta para utilizar o Kugel, porém  para  ele funcione corretamente, é necessário instalar alguns módulos. Abaixo, um exemplo de servidor, com pug como template engine, kugel-server responsável configurar o o express e com o módulo kugel-better-express, que possui uma abstração do express, para ser mais simples e organizado.
+```
 
-        router.jwt.get('/api', () => {
+	npm install --save github:pliffer/kugel-better-express github:pliffer/kugel-server pug
 
-            return Promise.resolve()
+```
+Além disso, no seu package.json, deverá incluir o atributo kugel, com configurações adicionais:
 
-        });
+```
+"kugel": {
+	"modules": {
+		"core": [
+			"kugel-better-express",
+			"kugel-server"
+		],
+		"start": []
+	},
+	"config": {
+		"gzip": false,
+		"morgan": "dev",
+		"cors": false,
+		"upload": false,
+		"template_engine": "pug",
+		"body_parser": true,
+		"openapi": false,
+		"modules": true,
+		"state": "development"
+	}
+}
+```
 
-    Validate
-        Permite a validação de dados enviados a uma rota de acordo com um schema
+### Modules
 
-    Jwt
-        Interface de geração de tokens JWT para autenticação de usuários e APIs
-        
-        .pem (JWT)
+A propriedade `modules` guarda a ordem de carregamento, tanto individual quanto em fases. Não importa os nomes das propriedades, elas sempre irão carregar como estão organizadas, portanto, no exemplo acima, estamos dizendo que os módulos dentro de `core` serão carregados antes de `start`.
 
-    Permissions
-        Camada de abstração para validar as permissões atribuídas a um JWT
+Assim como na ordem de carregamento, os modulos seguem o mesmo padrão, isto é, no exemplo acima, `kugel-better-express` carrega antes de `kugel-server`. Isso é importante para evitar bugs de dependência e outras inconveniências.
 
+### Config
+A propriedade config guarda as configurações do servidor, que serão interpretadas pelos módulos que as usa. No caso acima, estamos dizendo que o `kugel-server` usará "dev" para o parâmetro morgan, que é um utilitario para exibição dos logs quando há uma requisição.  Para desativar o morgan, basta não incluir essa propriedade, ou torna-la `false`.
 
-Boot
-    logs.js
-        Interface de armazenamento de logs de modo organizado
+Para saber sobre o uso de cada propriedade de config, confira a documentação individual de cada módulo.
 
-    module.js
-        Interface de carregamento de módulos
+## *Boilerplate* mínimo
+Abaixo, um exemplo de uso dessa configuração mínima declarada acima:
 
-    start.js
-        Inicialização do framework
+```
+let kugel =  require('../kugel');
 
-    util.js
-        Funções utilitárias
+kugel.init().then(() => {
 
-    database.js [@deprecated - use relationalNoun]
-        Interface de conexão com banco de dados
+	let betterExpress =  require('kugel-better-express');
 
-Package.json
+	betterExpress.router(router  => {
+
+		router.get('/', () =>  'Hello World!');
+
+	});
+
+});
+```
+
+Veja a documentação de `kugel-better-express` para mais detalhes.
+
+O código acima aguarda para que kugel inicie, e após isso, está disponível o uso de módulos kugel (que possuem uma chamada especial, mas também podem ser usados isoladamente, fora do kugel.
+
+## Scripts `npm run`
+
+Usamos os scripts para facilitar a criação dos módulos, mas não é obrigatório durante o desenvolvimento que criemos um módulo assim. Apenas é necessário seguir o padrão de desenvolvimento.
+### $ `npm run create modulo`
+
+Esse comando cria uma pasta dentro da pasta /modules do projeto atual, com o padrão de módulo kugel, isto é, com uma propriedade dentro, contendo kugel e sua versão.
+
+### $ `npm run enable modulo`
+
+Adiciona o módulo dentro do package.json em .kugel.modules.default, permitindo assim seu início automático.
+
+### $ `npm run disable modulo`
+
+Remove  o módulo dentro do package.json de qualquer passo de inicialização em .kugel.modules.
+
+### $ `npm run deploy modulo`
+
+Transfere a pasta `/modules/modulo` para `/node_modules/modulo`, tornando assim seu uso mais prático, através do `require('modulo')`;
+
+Durante o desenvolvimento, recomenda-se o uso de `let modulo = require(process.env['modulo'])`, já que o kugel detecta se ele está em `/modules` ou `/node_modules` e adiciona a variável de ambiente, com o nome do módulo e também como: `process.env['module-modulo']` no caso do nome de algum módulo sobrescrever alguma propriedade anterior.
+
+### $ `npm run undeploy modulo`
+
+Transfere a pasta de um módulo nativo, em `/node_modules/modulo` para a pasta local de módulos, em `/modules/modulo`

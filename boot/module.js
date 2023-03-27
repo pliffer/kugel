@@ -74,8 +74,14 @@ module.exports = {
                 }
 
                 // Usar apenas para desenvolvimento
+                if(typeof process.env[moduleName] == 'undefined'){
+
+                    process.env[moduleName] = modulePath;
+                    
+                }
+
+                // Define a variável de ambiente com o caminho do módulo
                 process.env['module-' + moduleName] = modulePath;
-                process.env[moduleName] = modulePath;
 
                 console.log(`@module ${moduleName.green} carregado`);
 

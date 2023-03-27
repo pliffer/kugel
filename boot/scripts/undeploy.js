@@ -2,8 +2,6 @@ let fs     = require('fs-extra');
 let path   = require('path');
 let colors = require('colors');
 
-// Turn the /node_modules to /modules
-
 let name = process.argv[2];
 
 if(!name) {
@@ -14,7 +12,7 @@ if(!name) {
 
 }
 
-let nodeModulePath = path.join(__dirname, '../..', 'node_modules', name);
+let nodeModulePath = path.join(process.cwd(), 'node_modules', name);
 
 if(!fs.existsSync(nodeModulePath)) {
 
@@ -24,7 +22,7 @@ if(!fs.existsSync(nodeModulePath)) {
 
 }
 
-let modulePath = path.join(__dirname, '../..', 'modules', name);
+let modulePath = path.join(process.cwd(), 'modules', name);
 
 if(fs.existsSync(modulePath)) {
 

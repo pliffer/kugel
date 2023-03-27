@@ -22,31 +22,10 @@
             "doc/*"
         ]
     },
-    "kugel": {
-        "modules": {
-            "core": [
-                "kugel-better-express",
-                "kugel-server"
-            ]
-        },
-        "config": {
-            "gzip": false,
-            "morgan": "dev",
-            "cors": false,
-            "upload": false,
-            "template_engine": "pug",
-            "body_parser": true,
-            "openapi": false,
-            "modules": true,
-            "state": "development"
-        }
-    },
     "dependencies": {
         "colors": "^1.4.0",
         "dotenv": "^16.0.3",
-        "kugel-better-express": "github:pliffer/kugel-better-express",
-        "kugel-server": "github:pliffer/kugel-server",
-        "pug": "^3.0.2"
+        "fs-extra": "^10.0.0"
     },
     "devDependencies": {
         "jest": "^29.3.1",

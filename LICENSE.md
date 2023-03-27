@@ -1,1 +1,1 @@
-Direitos reservados (c) 2016-2023, Pliffer Software
+Direitos reservados (c) 2016-2023, Pliffer Software 36.661.844/0001-20

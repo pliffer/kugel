@@ -14,7 +14,7 @@ if(!name) {
 
 }
 
-let modulePath = path.join(__dirname, '../..', 'modules', name);
+let modulePath = path.join(process.cwd(), 'modules', name);
 
 if(!fs.existsSync(modulePath)) {
 
@@ -24,7 +24,7 @@ if(!fs.existsSync(modulePath)) {
 
 }
 
-let nodeModulePath = path.join(__dirname, '../..', 'node_modules', name);
+let nodeModulePath = path.join(process.cwd(), 'node_modules', name);
 
 if(fs.existsSync(nodeModulePath)) {
 
