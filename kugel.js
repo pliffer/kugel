@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 module.exports = {
 
     init(){
@@ -7,3 +9,5 @@ module.exports = {
     }
 
 }
+
+console.log(process.env);

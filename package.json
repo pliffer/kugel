@@ -3,6 +3,9 @@
     "version": "2.0.0",
     "description": "",
     "main": "kugel.js",
+    "bin": {
+        "kugel": "./kugel.js"
+    },
     "scripts": {
         "test": "jest",
         "create": "node boot/scripts/create.js",
