@@ -36,14 +36,7 @@
             "upload": false,
             "template_engine": "pug",
             "body_parser": true,
-            "openapi": {
-                "swagger": "3.0.0",
-                "info": {
-                    "title": "Sigma Panel",
-                    "description": "Sigma Panel Api Description",
-                    "version": "1.0.0"
-                }
-            },
+            "openapi": false,
             "modules": true,
             "state": "development"
         }
