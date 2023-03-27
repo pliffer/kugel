@@ -6,16 +6,12 @@ Kugel é um framework em node.js, para a criação de aplicações modulares web
 
 Para instalar o Kugel, basta executar o seguinte comando:
 ```
-
-	npm install --save github:pliffer/kugel
-
+npm install --save github:pliffer/kugel
 ```
 
 Isso já basta para utilizar o Kugel, porém  para  ele funcione corretamente, é necessário instalar alguns módulos. Abaixo, um exemplo de servidor, com pug como template engine, kugel-server responsável configurar o o express e com o módulo kugel-better-express, que possui uma abstração do express, para ser mais simples e organizado.
 ```
-
-	npm install --save github:pliffer/kugel-better-express github:pliffer/kugel-server pug
-
+npm install --save github:pliffer/kugel-better-express github:pliffer/kugel-server pug
 ```
 Além disso, no seu package.json, deverá incluir o atributo kugel, com configurações adicionais:
 
