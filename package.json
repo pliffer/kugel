@@ -32,22 +32,7 @@
         "config": {
             "gzip": false,
             "morgan": "dev",
-            "cors": {
-                "origin": "*",
-                "methods": [
-                    "GET",
-                    "POST",
-                    "PUT",
-                    "DELETE",
-                    "OPTIONS"
-                ],
-                "headers": [
-                    "Content-Type",
-                    "Authorization"
-                ],
-                "credentials": true,
-                "optionStatus": 200
-            },
+            "cors": false,
             "upload": false,
             "template_engine": "pug",
             "body_parser": true,
