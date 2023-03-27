@@ -1,84 +1,78 @@
 {
-	"name": "kugel",
-	"version": "1.0.0",
-	"description": "",
-	"main": "kugel.js",
-	"author": "Pliffer",
-	"license": "SEE IN LICENSE.md",
-	"nodemonConfig": {
-		"ignore": [
-			"modules/*",
-			"app/assets/*",
-			".cache",
-			"doc/*"
-		]
-	},
-	"kugel": {
-		"modules": {
-			"core": [
-				"cl",
-				"blitz",
-				"mail"
-			],
-			"startup": [
-				"cube-tests-by-url"
-			],
-			"lightstart": [],
-			"start": []
-		},
-		"config": {
-			"gzip": true,
-			"morgan": true,
-			"session": false,
-			"socket": false,
-			"cors": false,
-			"assets": "assets",
-			"views": "views",
-			"template_engine": "pug",
-			"body_parser": false,
-			"jwt": false,
-			"database": false,
-			"modules": true,
-			"state": "development",
-			"http": true
-		}
-	},
-	"dependencies": {
-		"bcryptjs": "^2.4.3",
-		"chokidar": "^3.5.2",
-		"colors": "^1.4.0",
-		"compression": "^1.7.4",
-		"crc": "^3.8.0",
-		"dotenv": "^8.1.0",
-		"email-templates": "^8.0.8",
-		"express": "^4.17.1",
-		"express-fileupload": "^1.1.6",
-		"express-mysql-session": "^2.1.7",
-		"express-session": "^1.17.2",
-		"express-socket.io-session": "^1.3.5",
-		"fs-extra": "^8.1.0",
-		"get-folder-size": "^2.0.1",
-		"html-pdf": "^3.0.1",
-		"html-pdf-node": "^1.0.7",
-		"inquirer": "^7.0.0",
-		"jquery": "^3.6.0",
-		"js-sha512": "^0.8.0",
-		"jsdom": "^19.0.0",
-		"jsontoxml": "^1.0.1",
-		"jsonwebtoken": "^8.5.1",
-		"morgan": "^1.9.1",
-		"node-fetch": "^2.6.6",
-		"node-forge": "^1.2.1",
-		"node-html-parser": "^1.1.16",
-		"node-ipc": "^10.1.0",
-		"node-schedule": "^1.3.2",
-		"opn": "^6.0.0",
-		"pug": "^3.0.2",
-		"request": "^2.88.0",
-		"sass": "^1.44.0",
-		"socket.io": "^2.3.0",
-		"validate": "^5.1.0",
-		"walkdir": "^0.4.1",
-		"xlsx": "^0.17.4"
-	}
+    "name": "kugel",
+    "version": "2.0.0",
+    "description": "",
+    "main": "kugel.js",
+    "scripts": {
+        "test": "jest",
+        "create": "node boot/scripts/create.js",
+        "enable": "node boot/scripts/enable.js",
+        "disable": "node boot/scripts/disable.js",
+        "start": "nodemon kugel.js",
+        "deploy": "node boot/scripts/deploy.js",
+        "undeploy": "node boot/scripts/undeploy.js"
+    },
+    "author": "Pliffer",
+    "license": "SEE IN LICENSE.md",
+    "nodemonConfig": {
+        "ignore": [
+            "modules/*",
+            "app/assets/*",
+            ".cache",
+            "doc/*"
+        ]
+    },
+    "kugel": {
+        "modules": {
+            "core": [
+                "kugel-better-express",
+                "kugel-server"
+            ]
+        },
+        "config": {
+            "gzip": false,
+            "morgan": "dev",
+            "cors": {
+                "origin": "*",
+                "methods": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "DELETE",
+                    "OPTIONS"
+                ],
+                "headers": [
+                    "Content-Type",
+                    "Authorization"
+                ],
+                "credentials": true,
+                "optionStatus": 200
+            },
+            "upload": false,
+            "template_engine": "pug",
+            "body_parser": true,
+            "openapi": {
+                "swagger": "3.0.0",
+                "info": {
+                    "title": "Sigma Panel",
+                    "description": "Sigma Panel Api Description",
+                    "version": "1.0.0"
+                }
+            },
+            "modules": true,
+            "state": "development"
+        }
+    },
+    "dependencies": {
+        "colors": "^1.4.0",
+        "dotenv": "^16.0.3",
+        "kugel-better-express": "github:pliffer/kugel-better-express",
+        "kugel-server": "github:pliffer/kugel-server",
+        "pug": "^3.0.2"
+    },
+    "devDependencies": {
+        "jest": "^29.3.1",
+        "superagent": "^8.0.6",
+        "supertest": "^6.3.3"
+    }
 }

@@ -1,1 +1,1 @@
-Software desenvolvido por Pliffer Software
+Direitos reservados (c) 2016-2023, Pliffer Software
