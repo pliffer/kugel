@@ -2,6 +2,20 @@
 
 Kugel é um framework em node.js, para a criação de aplicações modulares web. Ele é flexível para ser totalmente configurado pelos seus módulos, sendo os mesmos responsáveis por definir as rotas, os modelos de dados, as views e os controllers.
 
+## Quickstart
+
+Para iniciar a partir de um projeto pré configurado, clone o exemplo:
+
+```
+git clone git@github.com:pliffer/kugel-example.git
+```
+
+E após isso, instale as dependências, como em qualquer projeto node:
+
+```
+cd kugel-example && npm install && node .
+```
+
 ## Instalação
 
 Para instalar o Kugel, basta executar o seguinte comando:
@@ -53,7 +67,7 @@ Para saber sobre o uso de cada propriedade de config, confira a documentação i
 Abaixo, um exemplo de uso dessa configuração mínima declarada acima:
 
 ```
-let kugel =  require('../kugel');
+let kugel =  require('kugel');
 
 kugel.init().then(() => {
 
