@@ -1,6 +1,7 @@
-let fs     = require('fs-extra');
-let path   = require('path');
-let colors = require('colors');
+const fs   = require('fs-extra');
+const path = require('path');
+
+require('colors');
 
 // Turn the /module to /node_modules
 

@@ -1,5 +1,5 @@
-let fs = require('fs');
-let path = require('path');
+const fs   = require('fs');
+const path = require('path');
 
 let name = process.argv[2];
 
