@@ -3,7 +3,7 @@ const fs   = require('fs-extra')
 
 require('colors');
 
-const Components = require(process.env.ROOT + '/../kugel-components');
+const Components = require('kugel-components');
 
 module.exports = {
 
@@ -47,6 +47,7 @@ module.exports = {
 
                 if(!package.kugel) throw new Error(`@module ${moduleName.red} não possui o campo kugel no package.json`);
 
+                // @todo Remover dependencia de kugel-server
                 if(package.kugel.static){
 
                     let staticPath = path.join(modulePath, package.kugel.static);
@@ -65,6 +66,8 @@ module.exports = {
 
                 // Usar apenas para desenvolvimento
                 process.env['module-' + moduleName] = modulePath;
+                process.env[moduleName] = modulePath;
+
                 console.log(`@module ${moduleName.green} carregado`);
 
                 require(modulePath);
