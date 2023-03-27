@@ -13,7 +13,9 @@ git clone git@github.com:pliffer/kugel-example.git
 E após isso, instale as dependências, como em qualquer projeto node:
 
 ```
-cd kugel-example && npm install && node .
+cd kugel-example
+npm install
+node .
 ```
 
 ## Instalação
