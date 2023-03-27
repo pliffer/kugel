@@ -68,6 +68,8 @@ module.exports = new Promise((resolve) => { triggerStart = resolve });
         // Define a propriedade 'config' do objeto package.kugel, se não existir
         package.kugel.config ??= {};
 
+        let objStart = {};
+
         // Se a propriedade 'modules' estiver definida em package.kugel.config, carrega os módulos especificados usando o módulo './module.js'
         if(package.kugel.config.modules){
     
@@ -77,7 +79,10 @@ module.exports = new Promise((resolve) => { triggerStart = resolve });
             console.log('@starting Modulos');
     
             // Carregar módulos
-            await module.load(package.kugel.modules);
+            let modulesStart = await module.load(package.kugel.modules);
+
+            // Adicionar módulos ao objeto de inicialização
+            objStart = Object.assign(objStart, modulesStart);
 
         }
 
@@ -87,7 +92,7 @@ module.exports = new Promise((resolve) => { triggerStart = resolve });
         console.log("@started Iniciado " + (new Date() - startedAt) + "ms");
 
         // Chama a função de resolução da Promise para iniciar o aplicativo
-        triggerStart();
+        triggerStart(objStart);
 
     } catch(err){
         

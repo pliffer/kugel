@@ -3,11 +3,14 @@ const fs   = require('fs-extra')
 
 require('colors');
 
-const Component = require('kugel-components');
+const Components = require('kugel-components');
 
 module.exports = {
 
     async load(modules){
+
+        // Armazena os modulos a serem usados
+        let modulesObj = {};
 
         // Passa por cada etapa de carregamento
         for(let step in modules){
@@ -58,7 +61,7 @@ module.exports = {
                     let staticPath = path.join(modulePath, package.kugel.static);
 
                     // Adiciona a pasta de arquivos estáticos
-                    Component.get('express-static').add(staticPath);
+                    Components.get('express-static').add(staticPath);
 
                 }
 
@@ -69,7 +72,7 @@ module.exports = {
                     let viewsPath = path.join(modulePath, package.kugel.views);
 
                     // Adiciona a pasta de views
-                    Component.get('express-views').add(viewsPath);
+                    Components.get('express-views').add(viewsPath);
 
                 }
 
@@ -86,7 +89,7 @@ module.exports = {
                 console.log(`@module ${moduleName.green} carregado`);
 
                 // Carrega o módulo, para que possa rodar suas funções internas
-                require(modulePath);
+                modulesObj[package.kugel.name || moduleName] = require(modulePath);
 
                 if(link){
 
@@ -97,6 +100,9 @@ module.exports = {
             }
 
         }
+
+        // Retorna os módulos carregados
+        return modulesObj;
 
     }
 
