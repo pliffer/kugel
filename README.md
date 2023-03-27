@@ -69,15 +69,15 @@ Para saber sobre o uso de cada propriedade de config, confira a documentação i
 Abaixo, um exemplo de uso dessa configuração mínima declarada acima:
 
 ```
-const kugel =  require('kugel');
+const kugel = require('kugel');
 
 kugel.init().then(() => {
 
-	const betterExpress =  require('kugel-better-express');
+	const betterExpress = require('kugel-better-express');
 
-	betterExpress.router(router  => {
+	betterExpress.router(router => {
 
-		router.get('/', () =>  'Hello World!');
+		router.get('/', () => 'Hello World!');
 
 	});
 
