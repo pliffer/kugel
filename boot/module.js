@@ -88,8 +88,13 @@ module.exports = {
 
                 console.log(`@module ${moduleName.green} carregado`);
 
-                // Carrega o módulo, para que possa rodar suas funções internas
-                modulesObj[package.kugel.name || moduleName] = require(modulePath);
+                // @todo Verificar casos onde o módulo não tenha o main
+                if(package.main){
+    
+                    // Carrega o módulo, para que possa rodar suas funções internas
+                    modulesObj[package.kugel.name || moduleName] = require(modulePath);
+
+                }
 
                 if(link){
 
