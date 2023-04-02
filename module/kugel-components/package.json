@@ -1,0 +1,13 @@
+{
+    "name": "kugel-components",
+    "version": "1.0.0",
+    "description": "Permite componentes dentro do kugel",
+    "main": "components.js",
+    "author": "Pliffer",
+    "license": "ISC",
+    "dependencies": {},
+    "kugel": {
+      "version": 2
+    }
+  }
+  
