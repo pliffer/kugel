@@ -61,7 +61,7 @@ module.exports = {
                     let staticPath = path.join(modulePath, package.kugel.static);
 
                     // Adiciona a pasta de arquivos estáticos
-                    Components.get('express-static').add(staticPath);
+                    Component.get('express-static').add(staticPath);
 
                 }
 
@@ -72,7 +72,7 @@ module.exports = {
                     let viewsPath = path.join(modulePath, package.kugel.views);
 
                     // Adiciona a pasta de views
-                    Components.get('express-views').add(viewsPath);
+                    Component.get('express-views').add(viewsPath);
 
                 }
 
