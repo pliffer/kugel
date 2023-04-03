@@ -3,7 +3,7 @@ const fs   = require('fs-extra')
 
 require('colors');
 
-const Components = require('kugel-components');
+const Component = require('../module/kugel-components/components.js');
 
 module.exports = {
 
