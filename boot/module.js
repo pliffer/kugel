@@ -65,28 +65,6 @@ module.exports = {
                 // Caso não tenha o campo kugel no package.json
                 if(!packageJson.kugel) throw new Error(`@module ${moduleName.red} não possui o campo kugel no package.json`);
 
-                // @todo Remover dependencia de kugel-server
-                if(packageJson.kugel.static){
-
-                    // Define a pasta de arquivos estáticos
-                    let staticPath = path.join(actualModulePath, packageJson.kugel.static);
-
-                    // Adiciona a pasta de arquivos estáticos
-                    Component.get('express-static').add(staticPath);
-
-                }
-
-                // @todo Remover dependencia de kugel-server
-                if(packageJson.kugel.views){
-
-                    // Define a pasta de views
-                    let viewsPath = path.join(actualModulePath, packageJson.kugel.views);
-
-                    // Adiciona a pasta de views
-                    Component.get('express-views').add(viewsPath);
-
-                }
-
                 // Usar apenas para desenvolvimento
                 if(typeof process.env[moduleName] == 'undefined'){
 
